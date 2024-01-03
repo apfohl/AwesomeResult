@@ -28,9 +28,5 @@ namespace AwesomeResult
 
         public static Result<TResult> Bind<T, TResult>(this Result<T> result, Func<T, Result<TResult>> mapping) =>
             result.SelectMany(mapping);
-
-        public static Result Fail(this IError error) => Result.Of(error);
-
-        public static Result Fail(this IEnumerable<IError> errors) => Result.Of(errors);
     }
 }
