@@ -10,7 +10,7 @@ namespace AwesomeResult
         public static Success Success = default;
     }
 
-    public readonly struct Result<T> where T : notnull
+    public readonly struct Result<T> : IEquatable<Result<T>> where T : notnull
     {
         private T Instance { get; }
 
@@ -80,9 +80,34 @@ namespace AwesomeResult
                 failure(Errors.ToList());
             }
         }
+
+        public bool Equals(Result<T> other)
+        {
+            if (!EqualityComparer<T>.Default.Equals(Instance, other.Instance))
+            {
+                return false;
+            }
+
+            if (Errors.Count != other.Errors.Count)
+            {
+                return false;
+            }
+
+            return !Errors.Where((error, i) => !error.Equals(other.Errors[i])).Any();
+        }
+
+        public override bool Equals(object obj) =>
+            obj is Result<T> other && Equals(other);
+
+        public override int GetHashCode()
+        {
+            var instanceHashCode = Instance != null ? Instance.GetHashCode() : 0;
+            var errorHashCode = Errors.Aggregate(0, (code, error) => code ^ error.GetHashCode());
+            return (instanceHashCode * 397) ^ errorHashCode;
+        }
     }
 
-    public readonly struct Result
+    public readonly struct Result : IEquatable<Result>
     {
         private List<IError> Errors { get; }
 
@@ -133,6 +158,27 @@ namespace AwesomeResult
                 failure(Errors.ToList());
             }
         }
+
+        public bool Equals(Result other)
+        {
+            if (IsSuccessful != other.IsSuccessful)
+            {
+                return false;
+            }
+
+            if (Errors.Count != other.Errors.Count)
+            {
+                return false;
+            }
+
+            return !Errors.Where((error, i) => !error.Equals(other.Errors[i])).Any();
+        }
+
+        public override bool Equals(object obj) =>
+            obj is Result other && Equals(other);
+
+        public override int GetHashCode() =>
+            397 * Errors.Aggregate(0, (code, error) => code ^ error.GetHashCode());
     }
 
     namespace SuccessInitializer
