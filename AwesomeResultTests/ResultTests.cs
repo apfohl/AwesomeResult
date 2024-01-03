@@ -1,10 +1,19 @@
-using AwesomeResult;
+using AwesomeResult.Initializers;
 
 namespace AwesomeResultTests;
 
+using static Initializer;
+
 public static class ResultTests
 {
-    private sealed record TestError(int Code, string Message) : IError;
+    [Test]
+    public static void Failure_create_result_with_empty_errors()
+    {
+        Test().Match(_ => Assert.Fail(), errors => errors.Should().BeEmpty());
+        return;
+
+        Result<int> Test() => Failure;
+    }
 
     [Test]
     public static void Equals_with_same_values_is_true()
@@ -118,4 +127,99 @@ public static class ResultTests
 
         left.GetHashCode().Should().NotBe(right.GetHashCode());
     }
+
+    [Test]
+    public static void Match_with_null_success_action_throws_exception()
+    {
+        var test = () => 42.Success().Match(null, _ => { });
+        test.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
+    public static void Match_with_null_failure_action_throws_exception()
+    {
+        var test = () => 42.Success().Match(_ => { }, null);
+        test.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
+    public static void Match_with_null_success_function_throws_exception()
+    {
+        var test = () => 42.Success().Match(null, _ => 23);
+        test.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
+    public static void Match_with_null_failure_function_throws_exception()
+    {
+        var test = () => 42.Success().Match(value => value, null);
+        test.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
+    public static void Match_with_successful_result_executes_success_handler() =>
+        42.Success().Match(value => value, _ => default).Should().Be(42);
+
+    [Test]
+    public static void Match_with_failed_result_executes_failure_handler() =>
+        new TestError(42, "Not the truth!").Fail<int>().Match(_ => default, _ => 42).Should().Be(42);
+
+    [Test]
+    public static void Select_with_null_selector_throws_Exception()
+    {
+        var test = () => 42.Success().Select<int>(null);
+        test.Should().Throw<ArgumentNullException>();
+    }
+
+    [Test]
+    public static void Select_with_success_result_maps_to_new_value() =>
+        42.Success().Select(value => value.ToString()).Match(result => result.Should().Be("42"), _ => Assert.Fail());
+
+    [Test]
+    public static void Select_with_failed_result_keeps_errors()
+    {
+        var error = new TestError(42, "Not the truth!");
+
+        error.Fail<int>().Select(value => value.ToString()).Match(
+            _ => Assert.Fail(),
+            errors => errors.Should().ContainSingle(e => e.Equals(error))
+        );
+    }
+
+    [Test]
+    public static void SelectMany_with_null_selector_throws_Exception()
+    {
+        var test = () => 42.Success().SelectMany<int>(null);
+        test.Should().Throw<ArgumentNullException>();
+    }
+
+    [Test]
+    public static void SelectMany_with_success_result_maps_to_new_value() =>
+        42.Success().SelectMany(value => value.ToString().Success()).Match(
+            result => result.Should().Be("42"),
+            _ => Assert.Fail()
+        );
+
+    [Test]
+    public static void SelectMany_with_failed_result_keeps_errors()
+    {
+        var error = new TestError(42, "Not the truth!");
+
+        error.Fail<int>().SelectMany(value => value.ToString().Success()).Match(
+            _ => Assert.Fail(),
+            errors => errors.Should().ContainSingle(e => e.Equals(error))
+        );
+    }
+
+    [Test]
+    public static void GetHashCode_of_failure_struct_is_zero() =>
+        new Failure().GetHashCode().Should().Be(0);
+
+    [Test]
+    public static void Equals_of_failure_and_failure_is_true() =>
+        new Failure().Should().Be(new Failure());
+
+    [Test]
+    public static void Equals_of_failure_and_int_if_false() =>
+        new Failure().Should().NotBe(42);
 }
