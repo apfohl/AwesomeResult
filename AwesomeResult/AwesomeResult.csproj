@@ -8,7 +8,6 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Owner>Andreas Pfohl</Owner>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
         <LangVersion>default</LangVersion>
         <RootNamespace>AwesomeResult</RootNamespace>
         <PackageReadmeFile>README.md</PackageReadmeFile>
