@@ -2,16 +2,12 @@ using System;
 
 namespace AwesomeResult
 {
-    public readonly struct DefaultExceptionError : IError
+    public readonly struct DefaultExceptionError
     {
-        public int Code { get; }
-        public string Message { get; }
+        public Exception Exception { get; }
 
-        private DefaultExceptionError(Exception exception)
-        {
-            Code = exception.GetHashCode();
-            Message = exception.Message;
-        }
+        private DefaultExceptionError(Exception exception) =>
+            Exception = exception;
 
         public static DefaultExceptionError Of(Exception exception) =>
             new DefaultExceptionError(exception);
@@ -19,10 +15,7 @@ namespace AwesomeResult
 
     public static class TryExtensions
     {
-        private static readonly Func<Exception, IError> DefaultExceptionHandler =
-            exception => DefaultExceptionError.Of(exception);
-
-        public static Result<T> Try<T>(this Func<T> func, Func<Exception, IError> exceptionHandler = null)
+        public static Result<T, DefaultExceptionError> Try<T>(this Func<T> func)
         {
             try
             {
@@ -30,11 +23,22 @@ namespace AwesomeResult
             }
             catch (Exception exception)
             {
-                return exceptionHandler switch
-                {
-                    null => DefaultExceptionHandler(exception).Fail<T>(),
-                    _ => exceptionHandler(exception).Fail<T>()
-                };
+                return DefaultExceptionError.Of(exception).Fail<T, DefaultExceptionError>();
+            }
+        }
+
+        public static Result<T, TFailure> Try<T, TFailure>(this Func<T> func,
+            Func<Exception, TFailure> exceptionHandler)
+        {
+            if (exceptionHandler == null) throw new ArgumentNullException(nameof(exceptionHandler));
+
+            try
+            {
+                return func();
+            }
+            catch (Exception exception)
+            {
+                return exceptionHandler(exception).Fail<T, TFailure>();
             }
         }
     }

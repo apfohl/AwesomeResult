@@ -11,20 +11,23 @@ public static class TryExtensionsTest
     }
 
     [Test]
-    public static void Try_with_throwing_function_returns_result_with_error()
+    public static void Try_with_throwing_function_returns_result_with_default_exception_error()
     {
         var exception = new Exception("Test Exception");
         Func<int> func = () => throw exception;
 
         func.Try().Match(
             _ => Assert.Fail(),
-            errors => errors
-                .Should().ContainSingle(
-                    error => error is DefaultExceptionError &&
-                             error.Message.Equals(exception.Message) &&
-                             error.Code.Equals(exception.GetHashCode())
-                )
+            errors => errors.Should().ContainSingle(error => error.Exception.Equals(exception))
         );
+    }
+
+    [Test]
+    public static void Try_with_null_exception_handler_throws_exception()
+    {
+        Func<int> func = () => throw new Exception("Test Exception");
+
+        Assert.Throws<ArgumentNullException>(() => func.Try<int, TestError>(null));
     }
 
     [Test]
@@ -35,7 +38,7 @@ public static class TryExtensionsTest
         func.Try(exception => new TestError(exception.HResult, exception.Message))
             .Match(
                 _ => Assert.Fail(),
-                errors => errors.Should().ContainSingle(error => error is TestError)
+                errors => errors.Should().ContainSingle(error => error != null)
             );
     }
 }

@@ -1,3 +1,3 @@
 namespace AwesomeResultTests;
 
-public sealed record TestError(int Code, string Message) : IError;
+public sealed record TestError(int Code, string Message);
