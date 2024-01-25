@@ -8,7 +8,7 @@ namespace AwesomeResult
 
         private DefaultExceptionError(Exception exception) => Exception = exception;
 
-        public static DefaultExceptionError Of(Exception exception) => new DefaultExceptionError(exception);
+        public static DefaultExceptionError Create(Exception exception) => new DefaultExceptionError(exception);
     }
 
     public static class TryExtensions
@@ -21,7 +21,7 @@ namespace AwesomeResult
             }
             catch (Exception exception)
             {
-                return DefaultExceptionError.Of(exception).Fail<T>();
+                return DefaultExceptionError.Create(exception).Fail<T>();
             }
         }
 

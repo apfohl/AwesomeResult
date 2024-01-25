@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace AwesomeResult
 {
-    public static class ResultLinqAsyncExtensions
+    public static class LinqAsyncExtensions
     {
         public static Task<Result<TResult>> SelectMany<T, TCollection, TResult>(
             this Task<Result<T>> result,

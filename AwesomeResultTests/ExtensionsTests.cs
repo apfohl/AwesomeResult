@@ -2,7 +2,7 @@ namespace AwesomeResultTests;
 
 using static Initializer;
 
-public static class ResultExtensionsTests
+public static class ExtensionsTests
 {
     [Test]
     public static void Success_creates_result_with_value() =>

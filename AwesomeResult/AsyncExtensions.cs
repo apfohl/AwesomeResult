@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace AwesomeResult
 {
-    public static class ResultAsyncExtensions
+    public static class AsyncExtensions
     {
         public static Task<Result<TResult>> Select<T, TResult>(this Result<T> result, Func<T, Task<TResult>> mapping,
             bool continueOnCapturedContext = false) =>

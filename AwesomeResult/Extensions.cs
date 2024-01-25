@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace AwesomeResult
 {
-    public static class ResultExtensions
+    public static class Extensions
     {
         public static Result<T> Success<T>(this T value) => value;
 
