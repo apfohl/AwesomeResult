@@ -16,10 +16,12 @@ public static class TryExtensionsTest
         var exception = new Exception("Test Exception");
         Func<int> func = () => throw exception;
 
-        func.Try().Match(
-            _ => Assert.Fail(),
-            errors => errors.Should().ContainSingle(error => error.Exception.Equals(exception))
-        );
+        func.Try()
+            .Match(
+                _ => Assert.Fail(),
+                errors => errors.Should()
+                    .ContainSingle(error => ((DefaultExceptionError)error).Exception.Equals(exception))
+            );
     }
 
     [Test]
@@ -27,7 +29,7 @@ public static class TryExtensionsTest
     {
         Func<int> func = () => throw new Exception("Test Exception");
 
-        Assert.Throws<ArgumentNullException>(() => func.Try<int, TestError>(null));
+        Assert.Throws<ArgumentNullException>(() => func.Try(null));
     }
 
     [Test]

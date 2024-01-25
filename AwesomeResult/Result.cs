@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AwesomeResult.Initializers;
+﻿using AwesomeResult.Initializers;
 
 namespace AwesomeResult
 {
@@ -10,57 +7,55 @@ namespace AwesomeResult
         public static Failure Failure = default;
     }
 
-    public readonly struct Result<T, TFailure> : IEquatable<Result<T, TFailure>>
-        where T : notnull
-        where TFailure : notnull
+    public readonly struct Result<T> : IEquatable<Result<T>> where T : notnull
     {
         private T Instance { get; }
 
-        private List<TFailure> Errors { get; }
+        private List<IError> Errors { get; }
 
         private Result(T instance)
         {
             Instance = instance;
-            Errors = new List<TFailure>();
+            Errors = [];
         }
 
-        private Result(TFailure error)
+        private Result(IError error)
         {
             Instance = default;
-            Errors = new List<TFailure> { error };
+            Errors = [error];
         }
 
-        private Result(IEnumerable<TFailure> errors)
+        private Result(IEnumerable<IError> errors)
         {
             Instance = default;
             Errors = errors.ToList();
         }
 
-        public static implicit operator Result<T, TFailure>(T value) => new Result<T, TFailure>(value);
-        public static implicit operator Result<T, TFailure>(Failure _) => new Result<T, TFailure>(new List<TFailure>());
+        public static implicit operator Result<T>(T value) => new(value);
+        public static implicit operator Result<T>(Failure _) => new([]);
 
-        internal static Result<T, TFailure> Of(TFailure error) => new Result<T, TFailure>(error);
-        internal static Result<T, TFailure> Of(IEnumerable<TFailure> errors) => new Result<T, TFailure>(errors);
+        internal static Result<T> Of(IError error) => new(error);
+        internal static Result<T> Of(IEnumerable<IError> errors) => new(errors);
 
-        public Result<TResult, TFailure> Select<TResult>(Func<T, TResult> selector)
+        public Result<TResult> Select<TResult>(Func<T, TResult> selector)
         {
             if (selector == null) throw new ArgumentNullException(nameof(selector));
 
             return EqualityComparer<T>.Default.Equals(Instance, default)
-                ? new Result<TResult, TFailure>(Errors)
+                ? new Result<TResult>(Errors)
                 : selector(Instance);
         }
 
-        public Result<TResult, TFailure> SelectMany<TResult>(Func<T, Result<TResult, TFailure>> selector)
+        public Result<TResult> SelectMany<TResult>(Func<T, Result<TResult>> selector)
         {
             if (selector == null) throw new ArgumentNullException(nameof(selector));
 
             return EqualityComparer<T>.Default.Equals(Instance, default)
-                ? new Result<TResult, TFailure>(Errors)
+                ? new Result<TResult>(Errors)
                 : selector(Instance);
         }
 
-        public TResult Match<TResult>(Func<T, TResult> success, Func<IReadOnlyList<TFailure>, TResult> failure)
+        public TResult Match<TResult>(Func<T, TResult> success, Func<IReadOnlyList<IError>, TResult> failure)
         {
             if (success == null) throw new ArgumentNullException(nameof(success));
             if (failure == null) throw new ArgumentNullException(nameof(failure));
@@ -70,7 +65,7 @@ namespace AwesomeResult
                 : success(Instance);
         }
 
-        public void Match(Action<T> success, Action<IReadOnlyList<TFailure>> failure)
+        public void Match(Action<T> success, Action<IReadOnlyList<IError>> failure)
         {
             if (success == null) throw new ArgumentNullException(nameof(success));
             if (failure == null) throw new ArgumentNullException(nameof(failure));
@@ -85,7 +80,7 @@ namespace AwesomeResult
             }
         }
 
-        public bool Equals(Result<T, TFailure> other)
+        public bool Equals(Result<T> other)
         {
             if (!EqualityComparer<T>.Default.Equals(Instance, other.Instance))
             {
@@ -101,7 +96,7 @@ namespace AwesomeResult
         }
 
         public override bool Equals(object obj) =>
-            obj is Result<T, TFailure> other && Equals(other);
+            obj is Result<T> other && Equals(other);
 
         public override int GetHashCode()
         {
