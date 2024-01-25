@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace AwesomeResult
@@ -74,5 +75,34 @@ namespace AwesomeResult
         public static Task<Result<TResult>> FlatMap<T, TResult>(this Task<Result<T>> result,
             Func<T, Task<Result<TResult>>> mapping, bool continueOnCapturedContext = false) =>
             result.SelectMany(mapping, continueOnCapturedContext);
+
+        public static async Task<TResult> Match<T, TResult>(this Task<Result<T>> result,
+            Func<T, TResult> success, Func<IReadOnlyList<IError>, TResult> failure,
+            bool continueOnCapturedContext = false) =>
+            (await result.ConfigureAwait(continueOnCapturedContext)).Match(success, failure);
+
+        public static async Task<TResult> Match<T, TResult>(this Task<Result<T>> result,
+            Func<T, Task<TResult>> success, Func<IReadOnlyList<IError>, Task<TResult>> failure,
+            bool continueOnCapturedContext = false) =>
+            await (await result).Match(
+                async value => await success(value).ConfigureAwait(continueOnCapturedContext),
+                async errors => await failure(errors).ConfigureAwait(continueOnCapturedContext)
+            );
+
+        public static Task<T> OrElse<T>(this Task<Result<T>> result, T orElse,
+            bool continueOnCapturedContext = false) =>
+            result.Match(value => value, _ => orElse);
+
+        public static Task<T> OrElse<T>(this Task<Result<T>> result, Task<T> orElse,
+            bool continueOnCapturedContext = false) =>
+            result.Match(Task.FromResult, _ => orElse);
+
+        public static Task<T> OrElse<T>(this Task<Result<T>> result, Func<IReadOnlyList<IError>, T> orElse,
+            bool continueOnCapturedContext = false) =>
+            result.Match(value => value, orElse);
+
+        public static Task<T> OrElse<T>(this Task<Result<T>> result, Func<IReadOnlyList<IError>, Task<T>> orElse,
+            bool continueOnCapturedContext = false) =>
+            result.Match(Task.FromResult, orElse);
     }
 }
