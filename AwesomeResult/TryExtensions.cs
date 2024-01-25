@@ -1,3 +1,5 @@
+using System;
+
 namespace AwesomeResult
 {
     public readonly struct DefaultExceptionError : IError
@@ -6,7 +8,7 @@ namespace AwesomeResult
 
         private DefaultExceptionError(Exception exception) => Exception = exception;
 
-        public static DefaultExceptionError Of(Exception exception) => new(exception);
+        public static DefaultExceptionError Of(Exception exception) => new DefaultExceptionError(exception);
     }
 
     public static class TryExtensions

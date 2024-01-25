@@ -1,4 +1,7 @@
-﻿using AwesomeResult.Initializers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AwesomeResult.Initializers;
 
 namespace AwesomeResult
 {
@@ -16,13 +19,13 @@ namespace AwesomeResult
         private Result(T instance)
         {
             Instance = instance;
-            Errors = [];
+            Errors = new List<IError>();
         }
 
         private Result(IError error)
         {
             Instance = default;
-            Errors = [error];
+            Errors = new List<IError> { error };
         }
 
         private Result(IEnumerable<IError> errors)
@@ -31,11 +34,11 @@ namespace AwesomeResult
             Errors = errors.ToList();
         }
 
-        public static implicit operator Result<T>(T value) => new(value);
-        public static implicit operator Result<T>(Failure _) => new([]);
+        public static implicit operator Result<T>(T value) => new Result<T>(value);
+        public static implicit operator Result<T>(Failure _) => new Result<T>(new List<IError>());
 
-        internal static Result<T> Of(IError error) => new(error);
-        internal static Result<T> Of(IEnumerable<IError> errors) => new(errors);
+        internal static Result<T> Of(IError error) => new Result<T>(error);
+        internal static Result<T> Of(IEnumerable<IError> errors) => new Result<T>(errors);
 
         public Result<TResult> Select<TResult>(Func<T, TResult> selector)
         {
@@ -65,7 +68,7 @@ namespace AwesomeResult
                 : success(Instance);
         }
 
-        public void Match(Action<T> success, Action<IReadOnlyList<IError>> failure)
+        public void Switch(Action<T> success, Action<IReadOnlyList<IError>> failure)
         {
             if (success == null) throw new ArgumentNullException(nameof(success));
             if (failure == null) throw new ArgumentNullException(nameof(failure));

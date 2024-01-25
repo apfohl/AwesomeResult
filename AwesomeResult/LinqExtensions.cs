@@ -1,3 +1,5 @@
+using System;
+
 namespace AwesomeResult
 {
     public static class LinqExtensions

@@ -7,7 +7,7 @@ public static class TryExtensionsTest
     {
         var func = () => 42;
 
-        func.Try().Match(value => value.Should().Be(42), _ => Assert.Fail());
+        func.Try().Switch(value => value.Should().Be(42), _ => Assert.Fail());
     }
 
     [Test]
@@ -17,7 +17,7 @@ public static class TryExtensionsTest
         Func<int> func = () => throw exception;
 
         func.Try()
-            .Match(
+            .Switch(
                 _ => Assert.Fail(),
                 errors => errors.Should()
                     .ContainSingle(error => ((DefaultExceptionError)error).Exception.Equals(exception))
@@ -38,7 +38,7 @@ public static class TryExtensionsTest
         Func<int> func = () => throw new Exception("Test Exception");
 
         func.Try(exception => new TestError(exception.HResult, exception.Message))
-            .Match(
+            .Switch(
                 _ => Assert.Fail(),
                 errors => errors.Should().ContainSingle(error => error != null)
             );

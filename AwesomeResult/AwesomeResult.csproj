@@ -7,8 +7,6 @@
         <RepositoryUrl>https://github.com/apfohl/AwesomeResult</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Owner>Andreas Pfohl</Owner>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <LangVersion>default</LangVersion>
         <RootNamespace>AwesomeResult</RootNamespace>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>

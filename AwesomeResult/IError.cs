@@ -1,3 +1,6 @@
-namespace AwesomeResult;
-
-public interface IError;
+namespace AwesomeResult
+{
+    public interface IError
+    {
+    }
+}

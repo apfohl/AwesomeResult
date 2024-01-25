@@ -9,7 +9,7 @@ public static class ResultTests
     [Test]
     public static void Failure_create_result_with_empty_errors()
     {
-        Test().Match(_ => Assert.Fail(), errors => errors.Should().BeEmpty());
+        Test().Switch(_ => Assert.Fail(), errors => errors.Should().BeEmpty());
         return;
 
         Result<int> Test() => Failure;
@@ -131,14 +131,14 @@ public static class ResultTests
     [Test]
     public static void Match_with_null_success_action_throws_exception()
     {
-        var test = () => 42.Success().Match(null, _ => { });
+        var test = () => 42.Success().Switch(null, _ => { });
         test.Should().Throw<ArgumentException>();
     }
 
     [Test]
     public static void Match_with_null_failure_action_throws_exception()
     {
-        var test = () => 42.Success().Match(_ => { }, null);
+        var test = () => 42.Success().Switch(_ => { }, null);
         test.Should().Throw<ArgumentException>();
     }
 
@@ -174,14 +174,14 @@ public static class ResultTests
     [Test]
     public static void Select_with_success_result_maps_to_new_value() =>
         42.Success().Select(value => value.ToString())
-            .Match(result => result.Should().Be("42"), _ => Assert.Fail());
+            .Switch(result => result.Should().Be("42"), _ => Assert.Fail());
 
     [Test]
     public static void Select_with_failed_result_keeps_errors()
     {
         var error = new TestError(42, "Not the truth!");
 
-        error.Fail<int>().Select(value => value.ToString()).Match(
+        error.Fail<int>().Select(value => value.ToString()).Switch(
             _ => Assert.Fail(),
             errors => errors.Should().ContainSingle(e => e.Equals(error))
         );
@@ -197,7 +197,7 @@ public static class ResultTests
     [Test]
     public static void SelectMany_with_success_result_maps_to_new_value() =>
         42.Success().SelectMany(value => value.ToString().Success())
-            .Match(
+            .Switch(
                 result => result.Should().Be("42"),
                 _ => Assert.Fail()
             );
@@ -207,7 +207,7 @@ public static class ResultTests
     {
         var error = new TestError(42, "Not the truth!");
 
-        error.Fail<int>().SelectMany(value => value.ToString().Success()).Match(
+        error.Fail<int>().SelectMany(value => value.ToString().Success()).Switch(
             _ => Assert.Fail(),
             errors => errors.Should().ContainSingle(e => e.Equals(error))
         );
