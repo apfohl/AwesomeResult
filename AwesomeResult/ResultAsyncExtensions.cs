@@ -91,18 +91,26 @@ namespace AwesomeResult
 
         public static Task<T> OrElse<T>(this Task<Result<T>> result, T orElse,
             bool continueOnCapturedContext = false) =>
-            result.Match(value => value, _ => orElse);
+            result.Match(value => value, _ => orElse, continueOnCapturedContext);
 
         public static Task<T> OrElse<T>(this Task<Result<T>> result, Task<T> orElse,
             bool continueOnCapturedContext = false) =>
-            result.Match(Task.FromResult, _ => orElse);
+            result.Match(
+                Task.FromResult,
+                async _ => await orElse.ConfigureAwait(continueOnCapturedContext),
+                continueOnCapturedContext
+            );
 
         public static Task<T> OrElse<T>(this Task<Result<T>> result, Func<IReadOnlyList<IError>, T> orElse,
             bool continueOnCapturedContext = false) =>
-            result.Match(value => value, orElse);
+            result.Match(value => value, orElse, continueOnCapturedContext);
 
         public static Task<T> OrElse<T>(this Task<Result<T>> result, Func<IReadOnlyList<IError>, Task<T>> orElse,
             bool continueOnCapturedContext = false) =>
-            result.Match(Task.FromResult, orElse);
+            result.Match(
+                Task.FromResult,
+                async errors => await orElse(errors).ConfigureAwait(continueOnCapturedContext),
+                continueOnCapturedContext
+            );
     }
 }
