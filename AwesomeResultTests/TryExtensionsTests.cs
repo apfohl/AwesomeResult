@@ -1,6 +1,6 @@
 namespace AwesomeResultTests;
 
-public static class TryExtensionsTest
+public static class TryExtensionsTests
 {
     [Test]
     public static void Try_with_successful_function_returns_result_with_value()

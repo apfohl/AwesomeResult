@@ -5,11 +5,11 @@ namespace AwesomeResult
 {
     public static class TryAsyncExtensions
     {
-        public static async Task<Result<T>> Try<T>(this Func<Task<T>> func, bool continueOnCapturedContext = false)
+        public static async Task<Result<T>> TryAsync<T>(this Func<Task<T>> func, bool continueOnCapturedContext = false)
         {
             try
             {
-                return await func().ConfigureAwait(continueOnCapturedContext);
+                return (await func().ConfigureAwait(continueOnCapturedContext)).Success();
             }
             catch (Exception exception)
             {
@@ -17,14 +17,14 @@ namespace AwesomeResult
             }
         }
 
-        public static async Task<Result<T>> Try<T>(this Func<Task<T>> func, Func<Exception, IError> exceptionHandler,
-            bool continueOnCapturedContext = false)
+        public static async Task<Result<T>> TryAsync<T>(this Func<Task<T>> func,
+            Func<Exception, IError> exceptionHandler, bool continueOnCapturedContext = false)
         {
             if (exceptionHandler == null) throw new ArgumentNullException(nameof(exceptionHandler));
 
             try
             {
-                return await func().ConfigureAwait(continueOnCapturedContext);
+                return (await func().ConfigureAwait(continueOnCapturedContext)).Success();
             }
             catch (Exception exception)
             {
@@ -32,14 +32,14 @@ namespace AwesomeResult
             }
         }
 
-        public static async Task<Result<T>> Try<T>(this Func<Task<T>> func,
+        public static async Task<Result<T>> TryAsync<T>(this Func<Task<T>> func,
             Func<Exception, Task<IError>> exceptionHandler, bool continueOnCapturedContext = false)
         {
             if (exceptionHandler == null) throw new ArgumentNullException(nameof(exceptionHandler));
 
             try
             {
-                return await func().ConfigureAwait(continueOnCapturedContext);
+                return (await func().ConfigureAwait(continueOnCapturedContext)).Success();
             }
             catch (Exception exception)
             {

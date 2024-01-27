@@ -1,6 +1,6 @@
 namespace AwesomeResultTests;
 
-public static class LinqExtensionsTest
+public static class LinqExtensionsTests
 {
     [Test]
     public static void Select_from_result_with_value_returns_result_with_value()
