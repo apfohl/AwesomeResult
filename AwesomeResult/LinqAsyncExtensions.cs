@@ -13,7 +13,7 @@ namespace AwesomeResult
             if (collectionTask == null) throw new ArgumentNullException(nameof(collectionTask));
             if (selector == null) throw new ArgumentNullException(nameof(selector));
 
-            return result.SelectMany(m => collectionTask(m).Select(value => selector(m, value)));
+            return result.SelectManyAsync(m => collectionTask(m).SelectAsync(value => selector(m, value)));
         }
     }
 }
