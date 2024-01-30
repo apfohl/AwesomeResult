@@ -14,9 +14,6 @@ namespace AwesomeResult
         public static T OrElse<T>(this Result<T> result, T orElse) =>
             result.Match(value => value, _ => orElse);
 
-        public static T OrElse<T>(this Result<T> result, Func<T> orElse) =>
-            result.Match(value => value, _ => orElse());
-
         public static T OrElse<T>(this Result<T> result, Func<IReadOnlyList<IError>, T> orElse) =>
             result.Match(value => value, orElse);
 

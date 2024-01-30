@@ -106,14 +106,6 @@ public static class ExtensionsTests
         ((Result<int>)Failure).OrElse(23).Should().Be(23);
 
     [Test]
-    public static void OrElse_with_successful_result_and_result_function_returns_result_value() =>
-        42.Success().OrElse(() => 23).Should().Be(42);
-
-    [Test]
-    public static void OrElse_with_failed_result_and_result_function_returns_or_value() =>
-        ((Result<int>)Failure).OrElse(() => 23).Should().Be(23);
-
-    [Test]
     public static void OrElse_with_successful_result_and_result_mapping_function_returns_result_value() =>
         42.Success().OrElse(_ => 23).Should().Be(42);
 

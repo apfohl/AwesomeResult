@@ -332,4 +332,106 @@ public static class AsyncExtensionsTests
             return Task.CompletedTask;
         });
     }
+
+    [Test]
+    public static async Task OrElse_success_result_with_value_task_returns_original_value_task()
+    {
+        Result<int> result = 42;
+
+        (await result.OrElse(Task.FromResult(23))).Should().Be(42);
+    }
+
+    [Test]
+    public static async Task OrElse_failure_result_with_value_task_returns_or_else_value_task()
+    {
+        var error = new TestError(42, string.Empty);
+        var result = error.Fail<int>();
+
+        (await result.OrElse(Task.FromResult(23))).Should().Be(23);
+    }
+
+    [Test]
+    public static async Task OrElse_success_result_with_async_handler_returns_original_value_task()
+    {
+        Result<int> result = 42;
+
+        (await result.OrElse(_ => Task.FromResult(23))).Should().Be(42);
+    }
+
+    [Test]
+    public static async Task OrElse_failure_result_with_async_handler_returns_or_else_value_task()
+    {
+        var error = new TestError(42, string.Empty);
+        var result = error.Fail<int>();
+
+        (await result.OrElse(_ => Task.FromResult(23))).Should().Be(23);
+    }
+
+    [Test]
+    public static async Task OrElse_success_result_task_with_value_returns_original_value_task()
+    {
+        var result = Task.FromResult<Result<int>>(42);
+
+        (await result.OrElse(23)).Should().Be(42);
+    }
+
+    [Test]
+    public static async Task OrElse_failure_result_task_with_value_returns_or_else_value_task()
+    {
+        var error = new TestError(42, string.Empty);
+        var result = Task.FromResult(error.Fail<int>());
+
+        (await result.OrElse(23)).Should().Be(23);
+    }
+
+    [Test]
+    public static async Task OrElse_success_result_task_with_value_task_returns_original_value_task()
+    {
+        var result = Task.FromResult<Result<int>>(42);
+
+        (await result.OrElse(Task.FromResult(23))).Should().Be(42);
+    }
+
+    [Test]
+    public static async Task OrElse_failure_result_task_with_value_task_returns_or_else_value_task()
+    {
+        var error = new TestError(42, string.Empty);
+        var result = Task.FromResult(error.Fail<int>());
+
+        (await result.OrElse(Task.FromResult(23))).Should().Be(23);
+    }
+
+    [Test]
+    public static async Task OrElse_success_result_task_with_handler_returns_original_value_task()
+    {
+        var result = Task.FromResult<Result<int>>(42);
+
+        (await result.OrElse(_ => 23)).Should().Be(42);
+    }
+
+    [Test]
+    public static async Task OrElse_failure_result_task_with_handler_returns_or_else_value_task()
+    {
+        var error = new TestError(42, string.Empty);
+        var result = Task.FromResult(error.Fail<int>());
+
+        (await result.OrElse(_ => 23)).Should().Be(23);
+    }
+
+    [Test]
+    public static async Task OrElse_success_result_task_with_async_handler_returns_original_value_task()
+    {
+        var result = Task.FromResult<Result<int>>(42);
+
+        (await result.OrElse(_ => Task.FromResult(23))).Should().Be(42);
+    }
+
+    [Test]
+    public static async Task OrElse_failure_result_task_with_async_handler_returns_or_else_value_task()
+    {
+        var error = new TestError(42, string.Empty);
+        var result = Task.FromResult(error.Fail<int>());
+
+        (await result.OrElse(_ => Task.FromResult(23))).Should().Be(23);
+    }
 }
