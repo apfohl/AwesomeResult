@@ -266,4 +266,70 @@ public static class AsyncExtensionsTests
             _ => Task.FromResult(23)
         )).Should().Be(23);
     }
+
+    [Test]
+    public static Task SwitchAsync_success_result_with_async_handlers_executes_success_handler()
+    {
+        Result<int> result = 42;
+
+        return result.SwitchAsync(
+            value =>
+            {
+                value.Should().Be(42);
+                return Task.CompletedTask;
+            },
+            _ =>
+            {
+                Assert.Fail();
+                return Task.CompletedTask;
+            });
+    }
+
+    [Test]
+    public static Task SwitchAsync_failure_result_with_async_handlers_executes_failure_handler()
+    {
+        var error = new TestError(42, string.Empty);
+        var result = error.Fail<int>();
+
+        return result.SwitchAsync(
+            _ =>
+            {
+                Assert.Fail();
+                return Task.CompletedTask;
+            },
+            errors =>
+            {
+                errors.Should().ContainSingle(e => e.Equals(error));
+                return Task.CompletedTask;
+            });
+    }
+
+    [Test]
+    public static Task SwitchAsync_success_result_task_with_async_handlers_executes_success_handler()
+    {
+        var result = Task.FromResult<Result<int>>(42);
+
+        return result.SwitchAsync(value =>
+        {
+            value.Should().Be(42);
+            return Task.CompletedTask;
+        }, _ =>
+        {
+            Assert.Fail();
+            return Task.CompletedTask;
+        });
+    }
+
+    [Test]
+    public static Task SwitchAsync_failure_result_task_with_async_handlers_executes_failure_handler()
+    {
+        var error = new TestError(42, string.Empty);
+        var result = Task.FromResult(error.Fail<int>());
+
+        return result.SwitchAsync(_ => Task.CompletedTask, errors =>
+        {
+            errors.Should().ContainSingle(e => e.Equals(error));
+            return Task.CompletedTask;
+        });
+    }
 }

@@ -113,6 +113,14 @@ namespace AwesomeResult
                 async errors => await failure(errors).ConfigureAwait(continueOnCapturedContext)
             );
 
+        public static Task<T> OrElse<T>(this Result<T> result, Task<T> orElse,
+            bool continueOnCapturedContext = false) =>
+            result.MatchAsync(
+                Task.FromResult,
+                async _ => await orElse.ConfigureAwait(continueOnCapturedContext),
+                continueOnCapturedContext
+            );
+
         public static Task<T> OrElse<T>(this Task<Result<T>> result, T orElse,
             bool continueOnCapturedContext = false) =>
             result.MatchAsync(value => value, _ => orElse, continueOnCapturedContext);
@@ -122,6 +130,14 @@ namespace AwesomeResult
             result.MatchAsync(
                 Task.FromResult,
                 async _ => await orElse.ConfigureAwait(continueOnCapturedContext),
+                continueOnCapturedContext
+            );
+
+        public static Task<T> OrElse<T>(this Result<T> result, Func<IReadOnlyList<IError>, Task<T>> orElse,
+            bool continueOnCapturedContext = false) =>
+            result.MatchAsync(
+                Task.FromResult,
+                async errors => await orElse(errors).ConfigureAwait(continueOnCapturedContext),
                 continueOnCapturedContext
             );
 
