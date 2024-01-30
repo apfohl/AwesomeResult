@@ -17,7 +17,7 @@ public static class LinqExtensionsTests
             () => "Test".Success().SelectMany(
                 ((Func<string, Result<string>>)null)!,
                 (i, c) => $"{i}{c}"
-            ).Should()
+            )
         );
 
     [Test]
